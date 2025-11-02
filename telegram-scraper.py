@@ -367,7 +367,13 @@ class OptimizedTelegramScraper:
         print(f"\n🔧 Attempting to download {len(missing_media)} missing media files...")
         
         try:
-            entity = await self.client.get_entity(PeerChannel(int(channel)))
+            # Get the entity - handle both username and numeric ID
+            if channel.startswith('-') or channel.lstrip('-').isdigit():
+                # It's a numeric channel ID like -1001234567890
+                entity = await self.client.get_entity(PeerChannel(int(channel)))
+            else:
+                # It's a username like 'pjrjzy'
+                entity = await self.client.get_entity(channel)
             semaphore = asyncio.Semaphore(self.max_concurrent_downloads)
             completed_media = 0
             successful_downloads = 0
@@ -851,3 +857,4 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print("\nProgram interrupted. Exiting...")
         sys.exit()
+
